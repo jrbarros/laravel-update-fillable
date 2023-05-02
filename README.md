@@ -61,6 +61,13 @@ class User extends Model
     protected $fillable = ['name', 'email'];
 }
 ```
+
+# TODO
+
+- [ ] Remove migration, model e config and use what you need to test us, creating less useless code
+- [ ] Clean existing tests and create more
+- [ ] Refactor any function and check compatibility with older versions of laravel
+
 ## License
 Laravel Update Fillable is open-sourced software licensed under the MIT license.
 
