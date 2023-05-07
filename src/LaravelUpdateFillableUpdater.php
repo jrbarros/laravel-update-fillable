@@ -186,17 +186,30 @@ class LaravelUpdateFillableUpdater
     protected function writeFillableCodeToModel(string $modelFilePath, string $newFillableCode): void
     {
         $modelFilePath = $this->getModelFilePath($modelFilePath);
+        $content = file_get_contents($modelFilePath);
 
-        $handle = fopen($modelFilePath, 'r+');
-        if ($handle) {
-            while (($line = fgets($handle)) !== false) {
-                if (preg_match('/protected\s*\$fillable\s*=\s*\[.*?\];/s', $line)) {
-                    fseek($handle, -strlen($line), SEEK_CUR);
-                    fwrite($handle, $newFillableCode);
-                    break;
-                }
+        preg_match('/protected\s+\$fillable\s+=\s+((\[[^\]]*\])|(array\(\)))\s*;/s', $content, $matches);
+
+        if (!empty($matches)) {
+            $start = strpos($content, $matches[0]);
+            $end = $start + strlen($matches[0]);
+
+            $newContent = substr($content, 0, $start) . "protected \$fillable = $newFillableCode;\n" . substr($content, $end);
+
+            file_put_contents($modelFilePath, $newContent);
+        } else {
+            // Se não encontrou a propriedade fillable, adiciona após a propriedade table
+            preg_match('/protected\s+\$table\s*=[^;]*;/s', $content, $matches);
+
+            if (!empty($matches)) {
+                $start = strpos($content, $matches[0]) + strlen($matches[0]);
+                $newContent = substr($content, 0, $start) . "\n\n    protected \$fillable = $newFillableCode;\n" . substr($content, $start);
+            } else {
+                // Se não encontrou a propriedade table, adiciona no final da classe
+                $newContent = $content . "\n\n    protected \$fillable = $newFillableCode;\n";
             }
-            fclose($handle);
+
+            file_put_contents($modelFilePath, $newContent);
         }
     }
 
