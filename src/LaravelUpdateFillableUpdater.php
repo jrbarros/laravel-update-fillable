@@ -87,11 +87,7 @@ class LaravelUpdateFillableUpdater
 
         $fillableCode = implode("\n", $fillableCode);
 
-        return <<<EOT
-            protected \$fillable = [
-                {$fillableCode}
-            ];
-        EOT;
+        return "[\n" . implode("\n", $fillableCode) . "\n    ]";
     }
 
     public function getModelFilePath(string $modelClass): bool|string
