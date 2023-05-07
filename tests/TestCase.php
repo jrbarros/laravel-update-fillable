@@ -3,8 +3,8 @@
 namespace Jrbarros\LaravelUpdateFillable\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Jrbarros\LaravelUpdateFillable\LaravelUpdateFillableServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -28,7 +28,7 @@ class TestCase extends Orchestra
     {
         config()->set('database.default', 'testing');
 
-        $migration = include __DIR__ . '/../database/migrations/create_update_fillable_table.php';
+        $migration = include __DIR__.'/../database/migrations/create_update_fillable_table.php';
         $migration->up();
     }
 }
