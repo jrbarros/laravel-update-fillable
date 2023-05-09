@@ -284,7 +284,7 @@ class LaravelUpdateFillableUpdater
             $finder->files()->in($projectPath . '/' . $directory)->name('*.php');
 
             foreach ($finder as $file) {
-                $className = $this->getClassNameFromFile($file);
+                $className = $this->extractNamespace($file);
 
                 if (!$className) {
                     continue;
@@ -301,43 +301,42 @@ class LaravelUpdateFillableUpdater
         return $models;
     }
 
-    protected function getClassNameFromFile(SplFileInfo $file): ?string
+    public function extractNamespace(SplFileInfo $file) : string
     {
-        $namespace = null;
-        $class = null;
-
         $path = $file->getRealPath() !== false ? $file->getRealPath() : $file->getPathname();
+        $contents = file_exists($path) ? file_get_contents($path) : $path;
 
-        $tokens = token_get_all(file_get_contents($path));
+        $namespace = '';
+        $class = '';
+        $gettingNamespace = false;
+        $gettingClass = false;
 
-        for ($i = 0; $i < count($tokens); $i++) {
-            if (!is_array($tokens[$i])) {
-                continue;
+        foreach (token_get_all($contents) as $token) {
+
+            if (is_array($token) && $token[0] == T_NAMESPACE) {
+                $gettingNamespace = true;
             }
 
-            if ($tokens[$i][0] == T_NAMESPACE) {
-                for ($j = $i + 1; $j < count($tokens); $j++) {
-                    if ($tokens[$j][0] == T_STRING) {
-                        $namespace .= '\\' . $tokens[$j][1];
-                    } elseif ($tokens[$j] === '{' || $tokens[$j] === ';') {
-                        break;
-                    }
+            if (is_array($token) && $token[0] == T_CLASS) {
+                $gettingClass = true;
+            }
+
+            if ($gettingNamespace === true) {
+                if (is_array($token) && in_array($token[0], [T_NAME_QUALIFIED, T_NS_SEPARATOR])) {
+                    $namespace .= $token[1];
+                } else if ($token === ';') {
+                    $gettingNamespace = false;
                 }
             }
 
-            if ($tokens[$i][0] == T_CLASS) {
-                for ($j = $i + 1; $j < count($tokens); $j++) {
-                    if ($tokens[$j] === '{') {
-                        $class = $tokens[$i + 2][1];
-                    }
+            if ($gettingClass === true) {
+                if (is_array($token) && $token[0] == T_STRING) {
+                    $class = $token[1];
+                    break;
                 }
             }
         }
 
-        if (!$namespace || !$class) {
-            return null;
-        }
-
-        return $namespace . '\\' . $class;
+        return $namespace ? $namespace . '\\' . $class : $class;
     }
 }
