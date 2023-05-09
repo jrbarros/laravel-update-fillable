@@ -230,16 +230,16 @@ class LaravelUpdateFillableUpdater
 
     }
 
-    protected function getCurrentFillableCode(string $modelClass): string
+    protected function getCurrentFillableCode(string $modelClass): array
     {
-        $modelFilePath = $this->getModelFilePath($modelClass);
-        $fileContent = file_get_contents($modelFilePath);
-
-        if (preg_match('/protected\s*\$fillable\s*=\s*\[.*?\];/s', $fileContent, $matches)) {
-            return $matches[0];
+        $fillableColumns = [];
+        $reflection = new ReflectionClass($modelClass);
+        if ($reflection->hasProperty('fillable')) {
+            $fillableProperty = $reflection->getProperty('fillable');
+            $fillableColumns = $fillableProperty->getValue($reflection->newInstanceWithoutConstructor());
         }
 
-        return '';
+        return $fillableColumns;
     }
 
     public function generateFillableDiff(string $oldFillableCode, string $newFillableCode): string
