@@ -18,7 +18,7 @@ class LaravelUpdateFillableCommand extends Command
         $fillableUpdater = new LaravelUpdateFillableUpdater();
 
         $projectPath = $this->option('path') ?: base_path();
-        $modelDirectories = $this->option('directories') ? explode(',', $this->option('directories')) : ['app'];
+        $modelDirectories = $this->option('directories') ? explode(',', $this->option('directories')) : ['app/Models'];
 
         $fillableUpdater->updateAllFillables(
             $writeChanges,

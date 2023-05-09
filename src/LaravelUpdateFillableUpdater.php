@@ -16,7 +16,7 @@ class LaravelUpdateFillableUpdater
         string $specificModel = null,
         array $excludedColumns = ['id'],
         string $projectPath = null,
-        array $modelDirectories = ['app']
+        array $modelDirectories = ['app/Models']
     ): void {
         $models = $specificModel ? [$specificModel] : $this->getAllModels($projectPath, $modelDirectories);
 
@@ -274,7 +274,7 @@ class LaravelUpdateFillableUpdater
         }
     }
 
-    public function getAllModels($projectPath = '', $modelDirectories = ['app']): array
+    public function getAllModels($projectPath = '', $modelDirectories = ['app/Models']): array
     {
         $models = [];
         $projectPath = !empty($projectPath) ? $projectPath : base_path();
