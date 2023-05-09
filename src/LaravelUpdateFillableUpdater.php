@@ -36,7 +36,7 @@ class LaravelUpdateFillableUpdater
             if ($writeChanges) {
                 $this->writeFillableCodeToModel($modelClass, $newFillableCode);
             } else {
-                $this->printFillableCode($modelClass, $newFillableCode);
+                $this->printFillableCode($modelClass, $fillableColumns);
             }
         }
     }
@@ -228,7 +228,7 @@ class LaravelUpdateFillableUpdater
         }
     }
 
-    protected function printFillableCode(string $modelClass, string $newFillableCode): void
+    protected function printFillableCode(string $modelClass, array $newFillableCode): void
     {
         $oldFillableCode = $this->getCurrentFillableCode($modelClass);
 
@@ -253,7 +253,7 @@ class LaravelUpdateFillableUpdater
         return $fillableColumns;
     }
 
-    public function generateFillableDiff(string $oldFillableCode, string $newFillableCode): string
+    public function generateFillableDiff(array $oldFillableLines, array $newFillableLines): void
     {
         $diffRemove = '';
         $diffAdd = '';
