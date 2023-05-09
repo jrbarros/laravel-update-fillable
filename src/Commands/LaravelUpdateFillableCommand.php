@@ -27,7 +27,5 @@ class LaravelUpdateFillableCommand extends Command
             $projectPath,
             $modelDirectories
         );
-
-        $this->info('Fillable properties have been updated.');
     }
 }
