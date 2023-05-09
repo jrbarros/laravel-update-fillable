@@ -27,7 +27,6 @@ class LaravelUpdateFillableUpdater
             }
 
             $table = $modelInstance->getTable();
-            //$this->updateAllProperties($modelClass, $table);
 
             $fillableColumns = $this->getFillableColumns($modelClass, $table, $excludedColumns);
 
@@ -96,8 +95,6 @@ class LaravelUpdateFillableUpdater
         foreach ($fillableColumns as $column) {
             $fillableCode[] = "        '{$column}',";
         }
-
-        $fillableCode = implode("\n", $fillableCode);
 
         return "[\n" . implode("\n", $fillableCode) . "\n    ]";
     }
@@ -210,14 +207,12 @@ class LaravelUpdateFillableUpdater
 
             file_put_contents($modelFilePath, $newContent);
         } else {
-            // Se não encontrou a propriedade fillable, adiciona após a propriedade table
             preg_match('/protected\s+\$table\s*=[^;]*;/s', $content, $matches);
 
             if (!empty($matches)) {
                 $start = strpos($content, $matches[0]) + strlen($matches[0]);
                 $newContent = substr($content, 0, $start) . "\n\n    protected \$fillable = $newFillableCode;\n" . substr($content, $start);
             } else {
-                // Se não encontrou a propriedade table, adiciona no final da classe
                 $newContent = $content . "\n\n    protected \$fillable = $newFillableCode;\n";
             }
 
@@ -231,8 +226,6 @@ class LaravelUpdateFillableUpdater
     protected function printFillableCode(string $modelClass, array $newFillableCode): void
     {
         $oldFillableCode = $this->getCurrentFillableCode($modelClass);
-
-        $diff = $this->generateFillableDiff($oldFillableCode, $newFillableCode);
 
         echo "Model: {$modelClass}\n";
         $this->generateFillableDiff($oldFillableCode, $newFillableCode);
