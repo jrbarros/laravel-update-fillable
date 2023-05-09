@@ -2,9 +2,9 @@
 
 namespace Jrbarros\LaravelUpdateFillable;
 
+use Jrbarros\LaravelUpdateFillable\Commands\LaravelUpdateFillableCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Jrbarros\LaravelUpdateFillable\Commands\LaravelUpdateFillableCommand;
 
 class LaravelUpdateFillableServiceProvider extends PackageServiceProvider
 {

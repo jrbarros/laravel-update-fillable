@@ -1,15 +1,13 @@
 <?php
 
+use App\Models\TestModel;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Schema;
-
 use Jrbarros\LaravelUpdateFillable\LaravelUpdateFillableUpdater;
-use App\Models\TestModel;
 use org\bovigo\vfs\vfsStream;
 
-
 beforeEach(function () {
-    uses( DatabaseMigrations::class);
+    uses(DatabaseMigrations::class);
 });
 
 it('should return all columns for table', function () {
@@ -79,8 +77,6 @@ it('should return the correct model file path', function () {
     expect($modelPath)->toBeString();
     expect($modelPath)->toEndWith('app/Models/TestModel.php');
 });
-
-
 
 it('reads the code of a model file', function () {
     // Create a virtual model file
@@ -176,9 +172,8 @@ it('gets the current fillable code', function () {
 
     $result = $method->invokeArgs($updater, [$file->url()]);
 
-   expect($result)->toContain("protected \$fillable = ['name', 'email'];");
+    expect($result)->toContain("protected \$fillable = ['name', 'email'];");
 });
-
 
 it('updates the dates property of a model', function () {
     // Create a virtual model file
@@ -201,7 +196,6 @@ it('updates the dates property of a model', function () {
     $appDir = vfsStream::newDirectory('Models')->at($root);
     $file = vfsStream::newFile('DefaultTestModel.php')->at($appDir);
     $file->setContent($modelCode);
-
 
     // Create a mock for LaravelUpdateFillableUpdater
     $updater = $this->getMockBuilder(LaravelUpdateFillableUpdater::class)
@@ -251,7 +245,6 @@ it('generates the fillable code for a model based on table columns', function ()
     expect($result)->toContain('protected $fillable');
 });
 
-
 it('returns the current fillable code', function () {
     // Cria um arquivo virtual de modelo
     $modelCode = <<<EOT
@@ -287,7 +280,6 @@ it('returns the current fillable code', function () {
 
     expect($result)->toBe("protected \$fillable = ['name', 'email'];");
 });
-
 
 //it('generates the difference between the current and generated fillable code', function () {
 //    // Create a virtual model file
@@ -349,13 +341,13 @@ it('generates the difference between the current and generated fillable code', f
     $file = vfsStream::newFile('TestModel.php')->at($root);
 
     // generate model code with fillable columns
-    $modelCode = '<?php' . "\n\n";
-    $modelCode .= 'namespace App\Models;' . "\n\n";
-    $modelCode .= 'use Illuminate\Database\Eloquent\Model;' . "\n\n";
-    $modelCode .= 'class TestModel extends Model' . "\n";
-    $modelCode .= '{' . "\n";
-    $modelCode .= '    protected $fillable = [\'name\', \'email\', \'password\'];' . "\n";
-    $modelCode .= '}' . "\n";
+    $modelCode = '<?php'."\n\n";
+    $modelCode .= 'namespace App\Models;'."\n\n";
+    $modelCode .= 'use Illuminate\Database\Eloquent\Model;'."\n\n";
+    $modelCode .= 'class TestModel extends Model'."\n";
+    $modelCode .= '{'."\n";
+    $modelCode .= '    protected $fillable = [\'name\', \'email\', \'password\'];'."\n";
+    $modelCode .= '}'."\n";
 
     $file->setContent($modelCode);
 
@@ -381,9 +373,9 @@ it('generates the difference between the current and generated fillable code', f
     $method->setAccessible(true);
     $result = $method->invokeArgs($updater, [$currentFillableCode, $generatedFillableCode]);
 
-    $expectedResult = <<<OEL
-    - protected \$fillable = ['name', 'email', 'password'];
-    +     protected \$fillable = [
+    $expectedResult = <<<'OEL'
+    - protected $fillable = ['name', 'email', 'password'];
+    +     protected $fillable = [
     +                 'name',
     +         'email',
     +         'password',

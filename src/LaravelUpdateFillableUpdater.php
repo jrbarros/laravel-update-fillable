@@ -5,8 +5,6 @@ namespace Jrbarros\LaravelUpdateFillable;
 use NunoMaduro\Collision\ConsoleColor;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Finder\SplFileInfo;
 
 class LaravelUpdateFillableUpdater
@@ -22,7 +20,7 @@ class LaravelUpdateFillableUpdater
 
         foreach ($models as $modelClass) {
             $modelInstance = new $modelClass;
-            if (!$modelInstance instanceof Model) {
+            if (! $modelInstance instanceof Model) {
                 continue;
             }
 
@@ -72,7 +70,7 @@ class LaravelUpdateFillableUpdater
 
         return array_values(
             array_filter($columns, function ($column) use ($excludedColumns) {
-                return !in_array($column, $excludedColumns);
+                return ! in_array($column, $excludedColumns);
             })
         );
     }
@@ -96,12 +94,13 @@ class LaravelUpdateFillableUpdater
             $fillableCode[] = "        '{$column}',";
         }
 
-        return "[\n" . implode("\n", $fillableCode) . "\n    ]";
+        return "[\n".implode("\n", $fillableCode)."\n    ]";
     }
 
     public function getModelFilePath(string $modelClass): bool|string
     {
         $reflection = new ReflectionClass($modelClass);
+
         return $reflection->getFileName();
     }
 
@@ -114,7 +113,7 @@ class LaravelUpdateFillableUpdater
             $dataType = $this->getColumnDataType($table, $column);
 
             if (in_array($dataType, ['date', 'datetime', 'timestamp'])) {
-                if (!in_array($column, ['created_at', 'updated_at'])) {
+                if (! in_array($column, ['created_at', 'updated_at'])) {
                     $dateColumns[] = $column;
                 }
             }
@@ -137,15 +136,15 @@ class LaravelUpdateFillableUpdater
             // Regex para encontrar a posição em que a propriedade $fillable termina
             $fillableEndRegex = '/\$fillable\s*=.*?;\n/m';
             preg_match($fillableEndRegex, $modelCode, $fillableEndMatches, PREG_OFFSET_CAPTURE);
-            $fillableEndPos = !empty($fillableEndMatches) ? $fillableEndMatches[0][1] + strlen($fillableEndMatches[0][0]) : 0;
+            $fillableEndPos = ! empty($fillableEndMatches) ? $fillableEndMatches[0][1] + strlen($fillableEndMatches[0][0]) : 0;
 
             // Regex para encontrar a posição em que a propriedade $dates termina
             $datesEndRegex = '/\$dates\s*=.*?;\n/m';
             preg_match($datesEndRegex, $modelCode, $datesEndMatches, PREG_OFFSET_CAPTURE);
-            $datesEndPos = !empty($datesEndMatches) ? $datesEndMatches[0][1] + strlen($datesEndMatches[0][0]) : 0;
+            $datesEndPos = ! empty($datesEndMatches) ? $datesEndMatches[0][1] + strlen($datesEndMatches[0][0]) : 0;
 
             // Incluir novas propriedades abaixo de $fillable ou $dates
-            $newDatesCode = "protected \$dates = ['" . implode("', '", $dateColumns) . "'];\n\n";
+            $newDatesCode = "protected \$dates = ['".implode("', '", $dateColumns)."'];\n\n";
             if ($datesEndPos > $fillableEndPos) {
                 $modelCode = substr_replace($modelCode, $newDatesCode, $datesEndPos, 0);
             } else {
@@ -161,9 +160,9 @@ class LaravelUpdateFillableUpdater
         $modelCode = file_get_contents($modelFile);
 
         if (strpos($modelCode, '<?php') === 0) {
-            $modelCode = preg_replace('/^<\?(php)?/i', "<?php", $modelCode, 1);
+            $modelCode = preg_replace('/^<\?(php)?/i', '<?php', $modelCode, 1);
 
-            if (!preg_match('/<\?php\s+\n/', $modelCode)) {
+            if (! preg_match('/<\?php\s+\n/', $modelCode)) {
                 $modelCode = preg_replace('/<\?php\s+/', "<?php\n\n", $modelCode);
             }
         } else {
@@ -199,21 +198,21 @@ class LaravelUpdateFillableUpdater
 
         preg_match('/protected\s+\$fillable\s+=\s+((\[[^\]]*\])|(array\(\)))\s*;/s', $content, $matches);
 
-        if (!empty($matches)) {
+        if (! empty($matches)) {
             $start = strpos($content, $matches[0]);
             $end = $start + strlen($matches[0]);
 
-            $newContent = substr($content, 0, $start) . "protected \$fillable = $newFillableCode;\n" . substr($content, $end);
+            $newContent = substr($content, 0, $start)."protected \$fillable = $newFillableCode;\n".substr($content, $end);
 
             file_put_contents($modelFilePath, $newContent);
         } else {
             preg_match('/protected\s+\$table\s*=[^;]*;/s', $content, $matches);
 
-            if (!empty($matches)) {
+            if (! empty($matches)) {
                 $start = strpos($content, $matches[0]) + strlen($matches[0]);
-                $newContent = substr($content, 0, $start) . "\n\n    protected \$fillable = $newFillableCode;\n" . substr($content, $start);
+                $newContent = substr($content, 0, $start)."\n\n    protected \$fillable = $newFillableCode;\n".substr($content, $start);
             } else {
-                $newContent = $content . "\n\n    protected \$fillable = $newFillableCode;\n";
+                $newContent = $content."\n\n    protected \$fillable = $newFillableCode;\n";
             }
 
             file_put_contents($modelFilePath, $newContent);
@@ -231,7 +230,6 @@ class LaravelUpdateFillableUpdater
         $this->generateFillableDiff($oldFillableCode, $newFillableCode);
         echo '----------------------------------------';
         echo "\n\n";
-
     }
 
     protected function getCurrentFillableCode(string $modelClass): array
@@ -253,14 +251,14 @@ class LaravelUpdateFillableUpdater
 
         $color = new ConsoleColor();
         foreach ($oldFillableLines as $line) {
-            if (!in_array($line, $newFillableLines)) {
-                $diffRemove .= "- " . $line . "\n";
+            if (! in_array($line, $newFillableLines)) {
+                $diffRemove .= '- '.$line."\n";
             }
         }
 
         foreach ($newFillableLines as $line) {
-            if (!in_array($line, $oldFillableLines)) {
-                $diffAdd .= "+ " . $line . "\n";
+            if (! in_array($line, $oldFillableLines)) {
+                $diffAdd .= '+ '.$line."\n";
             }
         }
 
@@ -281,22 +279,22 @@ class LaravelUpdateFillableUpdater
     public function getAllModels($projectPath = '', $modelDirectories = ['app/Models']): array
     {
         $models = [];
-        $projectPath = !empty($projectPath) ? $projectPath : base_path();
+        $projectPath = ! empty($projectPath) ? $projectPath : base_path();
 
         foreach ($modelDirectories as $directory) {
             $finder = new Finder();
-            $finder->files()->in($projectPath . '/' . $directory)->name('*.php');
+            $finder->files()->in($projectPath.'/'.$directory)->name('*.php');
 
             foreach ($finder as $file) {
                 $className = $this->extractNamespace($file);
 
-                if (!$className) {
+                if (! $className) {
                     continue;
                 }
 
                 $reflection = new ReflectionClass($className);
 
-                if ($reflection->isSubclassOf(Model::class) && !$reflection->isAbstract()) {
+                if ($reflection->isSubclassOf(Model::class) && ! $reflection->isAbstract()) {
                     $models[] = $className;
                 }
             }
@@ -341,6 +339,6 @@ class LaravelUpdateFillableUpdater
             }
         }
 
-        return $namespace ? $namespace . '\\' . $class : $class;
+        return $namespace ? $namespace . '\\' . $class :$class;
     }
 }
