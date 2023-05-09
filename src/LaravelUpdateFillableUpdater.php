@@ -55,6 +55,9 @@ class LaravelUpdateFillableUpdater
     {
         $columns = $this->getColumnsForTable($table);
 
+        $defaultTimestamps = ['created_at', 'updated_at'];
+        $excludedColumns = array_merge($excludedColumns, $defaultTimestamps);
+
         $reflection = new ReflectionClass($modelClass);
         if ($reflection->hasProperty('nonFillable')) {
             $nonFillableProperty = $reflection->getProperty('nonFillable');
