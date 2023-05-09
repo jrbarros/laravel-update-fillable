@@ -2,6 +2,7 @@
 
 namespace Jrbarros\LaravelUpdateFillable;
 
+use NunoMaduro\Collision\ConsoleColor;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Support\Facades\Schema;
@@ -210,6 +211,9 @@ class LaravelUpdateFillableUpdater
             }
 
             file_put_contents($modelFilePath, $newContent);
+
+            $color = new ConsoleColor();
+            echo $color->apply('green', 'Fillable properties have been updated.');
         }
     }
 
@@ -220,7 +224,10 @@ class LaravelUpdateFillableUpdater
         $diff = $this->generateFillableDiff($oldFillableCode, $newFillableCode);
 
         echo "Model: {$modelClass}\n";
-        echo $diff . "\n";
+        $this->generateFillableDiff($oldFillableCode, $newFillableCode);
+        echo '----------------------------------------';
+        echo "\n\n";
+
     }
 
     protected function getCurrentFillableCode(string $modelClass): string
@@ -237,23 +244,34 @@ class LaravelUpdateFillableUpdater
 
     public function generateFillableDiff(string $oldFillableCode, string $newFillableCode): string
     {
-        $diff = '';
-        $oldFillableLines = explode("\n", $oldFillableCode);
-        $newFillableLines = explode("\n", $newFillableCode);
+        $diffRemove = '';
+        $diffAdd = '';
 
+        $color = new ConsoleColor();
         foreach ($oldFillableLines as $line) {
             if (!in_array($line, $newFillableLines)) {
-                $diff .= "- " . $line . "\n";
+                $diffRemove .= "- " . $line . "\n";
             }
         }
 
         foreach ($newFillableLines as $line) {
             if (!in_array($line, $oldFillableLines)) {
-                $diff .= "+ " . $line . "\n";
+                $diffAdd .= "+ " . $line . "\n";
             }
         }
 
-        return $diff;
+        if (empty($diffRemove) && empty($diffAdd)) {
+            echo  $color->apply('blue', 'No changes' . "\n");
+            return;
+        }
+
+        if (!empty($diffRemove)) {
+            echo $color->apply('red', $diffRemove);
+        }
+
+        if (!empty($diffAdd)) {
+            echo $color->apply('green', $diffAdd);
+        }
     }
 
     public function getAllModels($projectPath = '', $modelDirectories = ['app']): array
