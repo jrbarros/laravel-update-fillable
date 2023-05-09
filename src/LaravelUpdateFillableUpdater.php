@@ -65,9 +65,17 @@ class LaravelUpdateFillableUpdater
             $excludedColumns = array_merge($excludedColumns, $nonFillableColumns);
         }
 
-        return array_filter($columns, function ($column) use ($excludedColumns) {
-            return !in_array($column, $excludedColumns);
-        });
+        if ($reflection->hasProperty('nonFillable')) {
+            $guardedProperty = $reflection->getProperty('guarded');
+            $guardedColumns = $guardedProperty->getValue($reflection->newInstanceWithoutConstructor());
+            $excludedColumns = array_merge($excludedColumns, $guardedColumns);
+        }
+
+        return array_values(
+            array_filter($columns, function ($column) use ($excludedColumns) {
+                return !in_array($column, $excludedColumns);
+            })
+        );
     }
 
     public function updateAllProperties(string $modelClass, string $table): void
