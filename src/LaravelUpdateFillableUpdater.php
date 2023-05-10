@@ -2,6 +2,8 @@
 
 namespace Jrbarros\LaravelUpdateFillable;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use NunoMaduro\Collision\ConsoleColor;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
