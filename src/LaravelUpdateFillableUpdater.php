@@ -265,15 +265,16 @@ class LaravelUpdateFillableUpdater
         }
 
         if (empty($diffRemove) && empty($diffAdd)) {
-            echo  $color->apply('blue', 'No changes' . "\n");
+            echo $color->apply('blue', 'No changes'."\n");
+
             return;
         }
 
-        if (!empty($diffRemove)) {
+        if (! empty($diffRemove)) {
             echo $color->apply('red', $diffRemove);
         }
 
-        if (!empty($diffAdd)) {
+        if (! empty($diffAdd)) {
             echo $color->apply('green', $diffAdd);
         }
     }
@@ -305,7 +306,7 @@ class LaravelUpdateFillableUpdater
         return $models;
     }
 
-    public function extractNamespace(SplFileInfo $file) : string
+    public function extractNamespace(SplFileInfo $file): string
     {
         $path = $file->getRealPath() !== false ? $file->getRealPath() : $file->getPathname();
         $contents = file_exists($path) ? file_get_contents($path) : $path;
@@ -328,7 +329,7 @@ class LaravelUpdateFillableUpdater
             if ($gettingNamespace === true) {
                 if (is_array($token) && in_array($token[0], [T_NAME_QUALIFIED, T_NS_SEPARATOR])) {
                     $namespace .= $token[1];
-                } else if ($token === ';') {
+                } elseif ($token === ';') {
                     $gettingNamespace = false;
                 }
             }
@@ -341,6 +342,6 @@ class LaravelUpdateFillableUpdater
             }
         }
 
-        return $namespace ? $namespace . '\\' . $class :$class;
+        return $namespace ? $namespace.'\\'.$class : $class;
     }
 }
