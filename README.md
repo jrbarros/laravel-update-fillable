@@ -5,7 +5,7 @@ Laravel Update Fillable is a command-line tool that updates the $fillable proper
 #### Install the package via Composer:
 
 ```bash
-composer require jrbarros/laravel-update-fillable
+composer require jrbarros/laravel-update-fillable --dev
 ```
 
 ## Usage
